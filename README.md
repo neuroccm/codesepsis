@@ -13,7 +13,9 @@ A Sepsis Initiative. A one-page brief for emergency physicians that summarizes t
 | `styles.css` | Shared styles for both pages, light and dark |
 | `theme.js` | Light and dark mode toggle. Remembers the choice in the browser. |
 | `favicon.svg` | Browser tab icon |
-| `_worker.js` | Sign-in gate that checks the Cloudflare Access token on every request |
+| `_headers` | Security headers sent with every page |
+| `wrangler.jsonc` | Cloudflare Workers config: serves this folder as static assets |
+| `.assetsignore` | Keeps the config and repo files out of the public upload |
 
 ## Light and dark mode
 
@@ -21,29 +23,18 @@ Both pages follow the system light or dark setting by default. The "Dark mode" s
 
 ## How it is deployed
 
-- This GitHub repo is connected to Cloudflare Pages. Every commit to `main` redeploys the site.
-- Pages build settings: framework preset **None**, no build command, build output directory `/`.
-- Custom domain: `codesepsis.app`.
-- A Cloudflare Access application covers `codesepsis.app`. Sign-in uses a one-time code sent by email, and the policy allows only listed email addresses.
-- Two environment variables are set on the Pages project (Settings > Variables and Secrets > Production):
-  - `CF_ACCESS_TEAM_DOMAIN`: `https://<team-name>.cloudflareaccess.com`
-  - `CF_ACCESS_AUD`: the Access application's Application Audience (AUD) tag. Separate several tags with commas.
+- This GitHub repo is connected to a Cloudflare Workers project named `codesepsis` (Workers Builds). Every commit to `main` redeploys the site.
+- Build settings: no build command, deploy command `npx wrangler deploy`, root directory `/`. `wrangler.jsonc` holds the rest.
+- Custom domain: `codesepsis.app` (Worker > Settings > Domains & Routes).
+- The site is public. There is no sign-in.
 
-  Variable changes take effect on the next deployment.
+## Security headers
 
-## Adding or removing people
-
-In the Cloudflare dashboard, open Zero Trust > Access > Applications, open the `codesepsis.app` application, and edit its Allow policy. Add individual emails, or an "Emails ending in" rule for a whole hospital domain. No code change is needed.
+`_headers` sets a strict Content-Security-Policy that allows only the site's own scripts (the light and dark toggle) and no third-party scripts, plus `noindex`, and headers that block framing and content sniffing. Pages also carry a `noindex` meta tag; remove it from both headers and pages if the site should appear in search results.
 
 ## Editing content
 
 Edit `index.html` or `disclosure.html` on GitHub and commit to `main`. Cloudflare redeploys in about a minute. When content changes, update the "Last reviewed" date in the footer of both pages and in the Accuracy section of the disclosure page. Each section header in the brief lists the framework pages it came from.
-
-## How the sign-in gate works
-
-`_worker.js` runs in front of every file (Cloudflare Pages advanced mode). A request is served only if it carries a Cloudflare Access token whose signature verifies against the team's public keys and whose issuer, audience and expiry are valid. Otherwise the worker returns 403, or 503 if the two variables are missing. This keeps the `*.pages.dev` address and preview deployments closed even though Access sits only on `codesepsis.app`.
-
-`robots.txt` is served without sign-in and disallows all crawling. Every page is sent with `noindex`, a strict Content-Security-Policy that allows only the site's own scripts (the light and dark toggle) and no third-party scripts, and headers that block framing.
 
 ## Content notes
 
