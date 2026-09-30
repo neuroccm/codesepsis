@@ -2,7 +2,7 @@
 
 A Sepsis Initiative. A one-page brief for emergency physicians that summarizes the ED Sepsis Clinical Framework (September 2026), plus a disclosure page.
 
-**Keep this repository private.** The source framework is intended for authorized health care personnel and is not for public distribution. The site is only served to people who sign in through Cloudflare Access.
+**Educational resource only.** This is an unofficial summary for learning and local implementation planning. It is not medical advice and creates no duty of care; see the Disclaimer at the bottom.
 
 ## Files
 
